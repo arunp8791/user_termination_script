@@ -8,9 +8,9 @@
 # Developed On                  : 12/05/2018 (MM/DD/YYYY)
 #
 # Last Modified By              : ARUNKUMAR PERUMAL
-# Last Modified On              : 12/05/2018 (MM/DD/YYYY)
+# Last Modified On              : 12/14/2018 (MM/DD/YYYY)
 #
-# Latest Version                : 0.001
+# Latest Version                : 0.003
 #########################################################################################################################
 
 #Global Variables
@@ -119,7 +119,7 @@ then
     #######################################################################################################################
     #<<<<<<<< valiating the connectivity to DMZ Jumpserver through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
     #######################################################################################################################
-    ssh -n "root@${dmzJumpServer}" "exit" > /dev/null 2>&1 && dmzSSHFlag=0 || dmzSSHFla
+    ssh "root@${dmzJumpServer}" "exit" > /dev/null 2>&1 && dmzSSHFlag=0 || dmzSSHFla
     if [[ "${dmzSSHFlag}" -eq 0 ]]
     then
       isDMZJumpServerReachable="true"
@@ -275,10 +275,10 @@ terminate_user_account_from_jumpserver()
   is_multiple_user_account_identified="false"
   user_account_id=""
   user_account_name_on_local=""
-  is_multiple_user_found_or_user_not_found=`ssh -n ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}' | wc -l`
+  is_multiple_user_found_or_user_not_found=`ssh ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}' | wc -l`
   if [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && "${emailAddress}" ]]
   then
-    is_multiple_user_found_or_user_not_found=`ssh -n ${target} cat /etc/passwd | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
+    is_multiple_user_found_or_user_not_found=`ssh ${target} cat /etc/passwd | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
     if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 ]]
     then
       is_multiple_user_account_identified="true"
@@ -286,7 +286,7 @@ terminate_user_account_from_jumpserver()
     then
       is_user_account_not_identified="true"
     else
-      user_account_id=`ssh -n ${target} cat /etc/passwd | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}'`
+      user_account_id=`ssh ${target} cat /etc/passwd | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}'`
     fi
   elif [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && ( ! "${emailAddress}" ) ]]
   then
@@ -298,7 +298,7 @@ terminate_user_account_from_jumpserver()
     fi
   else
     #user account identified with the help of user adName
-    user_account_id=`ssh -n ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}'`
+    user_account_id=`ssh ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}'`
   fi
 
   if [[ "${is_multiple_user_account_identified}" = "true" ]]
@@ -315,11 +315,11 @@ terminate_user_account_from_jumpserver()
   if [[ (! ( "${is_multiple_user_account_identified}" = "true" || "${is_user_account_not_identified}" = "true" ) ) && "${lc_samba}" = "yes" ]]
   then
     echo "checking whether the user is a part of samba application or not..."
-    is_samba_user_identified=`ssh -n ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
+    is_samba_user_identified=`ssh ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
     if [[ "${is_samba_user_identified}" -eq 1 ]]
     then
       is_samba_user="true"
-      user_name_on_samba=$(ssh -n ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
+      user_name_on_samba=$(ssh ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
     fi
   fi
 
@@ -338,7 +338,7 @@ terminate_user_account_from_jumpserver()
     then
       #echo "remove user on samba application."
       ssh root@$target smbpasswd -x $user_name_on_samba > /dev/null 2>&1
-      is_samba_user_terminated=`ssh -n ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
+      is_samba_user_terminated=`ssh ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
       if [[ "${is_samba_user_terminated}" -eq 0 ]]
       then
         #echo "The requested user (${adName}) has been terminated on samba application."
@@ -350,9 +350,9 @@ terminate_user_account_from_jumpserver()
         userTerminationFailedOnSAMBA=$(($userTerminatedCountOnSAMBA + 1))
       fi
     fi
-    user_account_name_on_local=$(ssh -n ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
-    ssh -n root@$target userdel -r "$user_account_name_on_local" > /dev/null 2>&1
-    is_user_terminated_on_os_level=$(ssh -n ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | wc -l)
+    user_account_name_on_local=$(ssh ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
+    ssh root@$target userdel -r "$user_account_name_on_local" > /dev/null 2>&1
+    is_user_terminated_on_os_level=$(ssh ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | wc -l)
     if [[ "${is_user_terminated_on_os_level}" -eq 0 ]]
     then
       #echo "The requested user (${adName}) has been terminated on OS Level."
@@ -370,14 +370,22 @@ terminate_user_account_from_jumpserver()
 countOfUserNodes=$(cat "${nodeFile}" | grep -v '^#' | wc -l)
 echo " "
 echo "Number of servers : ${countOfUserNodes}"
+readarray -t lines < ${nodeFile}
+for line in "${lines[@]}"; do
 
-while IFS=, read -r servername ip domain dmz samba; do
     ################################################################################
     #<<<<<<<<<<<<<<<<<<<check line is already commented or not>>>>>>>>>>>>>>>>>>>>>#
     ################################################################################
-    lineSkipRequired=$(echo "${servername}" | grep -e '^#' | wc -l)
+    lineSkipRequired=$(echo "${line}" | grep -e '^#' | wc -l)
     if [[ "${lineSkipRequired}" -eq 0 ]]
     then
+      #split required data from fields.
+      servername=$(echo "${line}" | cut -d, -f1)
+      ip=$(echo "${line}" | cut -d, -f2)
+      domain=$(echo "${line}" | cut -d, -f3)
+      dmz=$(echo "${line}" | cut -d, -f4)
+      samba=$(echo "${line}" | cut -d, -f5)
+
       # trim our node records
       servername=$(echo "${servername}" | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
       ip=$(echo "${ip}" | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
@@ -426,10 +434,10 @@ while IFS=, read -r servername ip domain dmz samba; do
         #####################################################################################################
         #<<<<<<<< valiating the connectivity through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
         #####################################################################################################
-        ssh -n "root@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
+        ssh "root@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
         if [[ "${sshFlag}" -ne 0 ]]
         then
-          ssh -n "root@${ip}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
+          ssh "root@${ip}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
           if [[ "${sshFlag}" -eq 0 ]]
           then
             target=${ip}
@@ -467,10 +475,9 @@ while IFS=, read -r servername ip domain dmz samba; do
       fi
       #<<<<<<<<<<<<<<<<<<<<<<< Level 2 Action - Check user and terminate user on target servers (Block) >>>>>>>>>>>>>>>>>>>>>>#
     fi
-done < ${nodeFile}
+done
 
 
-: << 'Commentted_Reporting_Part'
 #Report Generation - Block Start
 if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 ]]
 then
@@ -505,7 +512,6 @@ then
       echo -e "\r\t$(($i+1)). ${userTerminationFailedOnSAMBAServer[$i]}\r"
     done
   fi
-
   # Report User DEL Failure on OS Level
   if [[ "${userTerminationFailedOnLocal}" -gt 0 ]]
   then
@@ -521,7 +527,6 @@ then
       echo -e "\r\t$(($i+1)). ${userTerminationFailedOnLocalServer[$i]}\r"
     done
   fi
-
   # Report MAF Identified
   if [[ "${MAFCount}" -gt 0 ]]
   then
@@ -537,7 +542,6 @@ then
       echo -e "\r\t$(($i+1)). ${MAFServers[$i]}\r"
     done
   fi
-
   # User Terminated On SAMBA Application
   if [[ "${userTerminatedCountOnSAMBA}" -gt 0 ]]
   then
@@ -552,7 +556,6 @@ then
       echo -e "\r\t$(($i+1)). ${userTerminatedOnSAMBA[$i]}\r"
     done
   fi
-
   # User Terminated On OS Level
   if [[ "${userTerminatedCount}" -gt 0 ]]
   then
@@ -567,12 +570,10 @@ then
       echo -e "\r\t$(($i+1)). ${userTerminatedOnServer[$i]}\r"
     done
   fi
-
 elif [[ "${userTerminatedCountOnSAMBA}" -eq 0 && "${userTerminatedCount}" -eq 0 ]]
 then
   echo "The requested user account is not idenified on any of our unix servers."
 else
-
   # User Terminated On SAMBA Application
   if [[ "${userTerminatedCountOnSAMBA}" -gt 0 ]]
   then
@@ -587,7 +588,6 @@ else
       echo -e "\r\t$(($i+1)). ${userTerminatedOnSAMBA[$i]}\r"
     done
   fi
-
   # User Terminated On OS Level
   if [[ "${userTerminatedCount}" -gt 0 ]]
   then
@@ -602,8 +602,5 @@ else
       echo -e "\r\t$(($i+1)). ${userTerminatedOnServer[$i]}\r"
     done
   fi
-
 fi
 #Report Generation - Block Start
-
-Commented_Reporting_Part
