@@ -481,6 +481,7 @@ done
 #Report Generation - Block Start
 if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 ]]
 then
+  ReturnCode=2010
   # Report Unreachable Server
   if [[ "${notReachableNodeCount}" -gt 0 ]]
   then
@@ -572,8 +573,11 @@ then
   fi
 elif [[ "${userTerminatedCountOnSAMBA}" -eq 0 && "${userTerminatedCount}" -eq 0 ]]
 then
+  ReturnCode=2011
   echo "The requested user account is not idenified on any of our unix servers."
-else
+elif [[ ${userTerminatedCountOnSAMBA} -gt 0 || ${userTerminatedCount} -gt 0 ]]
+then
+  ReturnCode=2000
   # User Terminated On SAMBA Application
   if [[ "${userTerminatedCountOnSAMBA}" -gt 0 ]]
   then
@@ -602,5 +606,9 @@ else
       echo -e "\r\t$(($i+1)). ${userTerminatedOnServer[$i]}\r"
     done
   fi
+else
+  ReturnCode=2012
 fi
+echo "Return Code : ${ReturnCode}"
+echo "Report Generation Ended"
 #Report Generation - Block Start
