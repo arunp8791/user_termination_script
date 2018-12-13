@@ -213,7 +213,7 @@ terminate_user_account_from_dmzjumpserver()
   user_name_on_samba=""
   is_samba_user="false"
   lc_samba=$(echo "${samba}" | tr '[:upper:]' '[:lower:]')
-  echo "SAMBA STATUS : ${lc_samba}"
+  #echo "SAMBA STATUS : ${lc_samba}"
   if [[ (! ( "${is_multiple_user_account_identified}" = "true" || "${is_user_account_not_identified}" = "true" ) ) && "${lc_samba}" = "yes" ]]
   then
     echo "checking whether the user is a part of samba application or not..."
@@ -224,12 +224,13 @@ terminate_user_account_from_dmzjumpserver()
       user_name_on_samba=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
     fi
   fi
-  
+ : << 'Comment2' 
   #Proceeding with further execution.
   echo "Is Multiple User Found : ${is_multiple_user_account_identified}"
   echo "Is User Not Found : ${is_user_account_not_identified}"
   echo "Is SAMBA User : ${is_samba_user}"
   echo "User ID : ${user_account_id}"
+Comment2
 
   #Trim before and after.
   user_account_id=$(echo "${user_account_id}" | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
@@ -270,7 +271,7 @@ terminate_user_account_from_dmzjumpserver()
 
 terminate_user_account_from_jumpserver()
 {
-  echo "Terminate Account from L&M Jumpserver"
+  #echo "Terminate Account from L&M Jumpserver"
   is_user_account_not_identified="false"
   is_multiple_user_account_identified="false"
   user_account_id=""
@@ -311,7 +312,7 @@ terminate_user_account_from_jumpserver()
   user_name_on_samba=""
   is_samba_user="false"
   lc_samba=$(echo "${samba}" | tr '[:upper:]' '[:lower:]')
-  echo "SAMBA STATUS : ${lc_samba}"
+#  echo "SAMBA STATUS : ${lc_samba}"
   if [[ (! ( "${is_multiple_user_account_identified}" = "true" || "${is_user_account_not_identified}" = "true" ) ) && "${lc_samba}" = "yes" ]]
   then
     echo "checking whether the user is a part of samba application or not..."
@@ -324,10 +325,12 @@ terminate_user_account_from_jumpserver()
   fi
 
   #Proceeding with further execution.
+: << 'Comment1'
   echo "Is Multiple User Found : ${is_multiple_user_account_identified}"
   echo "Is User Not Found : ${is_user_account_not_identified}"
   echo "Is SAMBA User : ${is_samba_user}"
   echo "User ID : ${user_account_id}"
+Comment1
 
   #Trim before and after.
   user_account_id=$(echo "${user_account_id}" | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
@@ -479,6 +482,7 @@ done
 
 
 #Report Generation - Block Start
+echo "Report Generation Started"
 if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 ]]
 then
   ReturnCode=2010
