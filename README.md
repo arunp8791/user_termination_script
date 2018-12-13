@@ -1,5 +1,11 @@
 # user termination script
 
+This script will help unix administrator to terminate their unix user accounts and SAMBA application users on unix environment. This script will allow an unix administrator to execute it from unix jumpserver to target.
+
+#prerequisite :-
+Supported Operating System : RedHat, OpenSUSE, AIX and Ubuntu.
+
+Administrator should enable passwordless connection between jumpserver to target server/node.
 
 #script output :-
 
