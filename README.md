@@ -10,6 +10,21 @@ Supported Operating System : RedHat, OpenSUSE, AIX and Ubuntu.
 
 Administrator should enable passwordless connection between jumpserver to target server/node.
 
+Setting execute permission to main script
+
+[root@netbackuplinuxmaster UserDisableScript]# chmod +x mks_terminate_user_account.sh
+
+[root@netbackuplinuxmaster UserDisableScript]# ls -lntr
+
+total 40
+
+-rwxr-xr-x. 1 0 0  1349 Dec 13 13:28 check_connectivity_from_dmz_to_targetnode.sh
+
+-rwxr-xr-x. 1 0 0 30604 Dec 13 14:05 mks_terminate_user_account.sh
+
+[root@netbackuplinuxmaster UserDisableScript]#
+
+
 # script output :-
 
 [root@netbackuplinuxmaster UserDisableScript]# sh +x ./mks_terminate_user_account.sh 'xxxxxxx ; xxxxxxx.xxxx@gmail.com'
