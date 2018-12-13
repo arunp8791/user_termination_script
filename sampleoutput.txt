@@ -1,0 +1,66 @@
+Incident Number: INC000025287259
+
+REQ000000802722
+
+
+
+When run by root:
+    smbpasswd [options] [username]
+otherwise:
+    smbpasswd [options]
+
+options:
+  -L                   local mode (must be first option)
+  -h                   print this usage message
+  -s                   use stdin for password prompt
+  -c smb.conf file     Use the given path to the smb.conf file
+  -D LEVEL             debug level
+  -r MACHINE           remote machine
+  -U USER              remote username
+extra options when run by root or in local mode:
+  -a                   add user
+  -d                   disable user
+  -e                   enable user
+  -i                   interdomain trust account
+  -m                   machine trust account
+  -n                   set no password
+  -W                   use stdin ldap admin password
+  -w PASSWORD          ldap admin password
+  -x                   delete user
+  -R ORDER             name resolve order
+
+[root@netbackuplinuxmaster UserDisableScript]# sh +x ./mks_terminate_user_account.sh 'arunkumar ; arunkumar.perumal@nttdata.com'
+<<<<<<<<< Unix Account Termination Script  >>>>>>>>>>>
+
+Execution Start Date Time of Terminate User Script : 12/11/2018 16:20:59
+Name          : arunkumar
+Email Address : arunkumar.perumal@nttdata.com
+
+Number of servers : 2
+servername=mluser  ipaddress=10.129.3.9 domain=MKS dmz(yes/no)=NO samba(yes/no)=YES
+  Checking 1 of 2 hosts
+    Server Ping  Status : Up
+    Server SSH  Status : Up
+Terminate Account from L&M Jumpserver
+SAMBA STATUS : yes
+checking whether the user is a part of samba application or not...
+Is Multiple User Found : false
+Is User Not Found : false
+Is SAMBA User : true
+User ID : 512
+Deleted user arunkumar.
+mluser
+[]
+mluser
+[]
+
+[root@mlmuser ~]# cat /etc/passwd | grep -i arunkumar
+arunkumar:x:512:512::/home/arunkumar:/bin/bash
+[root@mlmuser ~]# pdbedit -L
+arunkumar:512:
+[root@mlmuser ~]# pdbedit -L
+[root@mlmuser ~]# cat /etc/passwd | grep -i arunkumar
+[root@mlmuser ~]#
+
+
+
