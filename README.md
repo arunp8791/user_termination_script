@@ -4,13 +4,13 @@ This script will help unix administrator to terminate their unix user accounts a
 
 This script will allow an unix administrator to execute it from unix jumpserver to target.
 
-#prerequisite :-
+# prerequisite :-
 
 Supported Operating System : RedHat, OpenSUSE, AIX and Ubuntu.
 
 Administrator should enable passwordless connection between jumpserver to target server/node.
 
-#script output :-
+# script output :-
 
 [root@netbackuplinuxmaster UserDisableScript]# sh +x ./mks_terminate_user_account.sh 'xxxxxxx ; xxxxxxx.xxxx@gmail.com'
 
