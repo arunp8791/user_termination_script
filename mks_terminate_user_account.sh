@@ -470,7 +470,7 @@ while IFS=, read -r servername ip domain dmz samba; do
 done < ${nodeFile}
 
 
-
+: << 'Commentted_Reporting_Part'
 #Report Generation - Block Start
 if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 ]]
 then
@@ -606,31 +606,4 @@ else
 fi
 #Report Generation - Block Start
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Commented_Reporting_Part
