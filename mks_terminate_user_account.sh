@@ -278,20 +278,33 @@ Comment2
       is_sudoer_dir_exist=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'[ -d /etc/sudoers.d ] && echo "exist" || echo "not exist"'" | grep -v not | wc -l)
       if [[ "${is_sudoer_exist}" -gt 0 && "${is_sudoer_dir_exist}" -gt 0 ]]
       then
-      echo "sudoers and sudoers.d exist."
+        echo "sudoers and sudoers.d exist."
+        is_user_exist_on_sudoers_file=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/*'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_file}" -gt 0 || "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
       elif [[ "${is_sudoer_exist}" -gt 0 ]]
       then
-      echo "sudoers exist."
-
+        echo "sudoers exist."
+        is_user_exist_on_sudoers_file=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_file}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
       elif [[ "${is_sudoer_dir_exist}" -gt 0 ]]
       then
-      echo "sudoers.d exist."
-
-      else
-      echo "sudoers and sudoers.d not exist."
-      
+        echo "sudoers.d exist."
+        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/*'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
       fi
-
    else
       #echo "unable to terminate a requested user on samba application."
       userTerminationFailedOnLocalServer[${userTerminationFailedOnLocal}]="${servername}"
