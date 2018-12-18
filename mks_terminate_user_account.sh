@@ -395,6 +395,38 @@ Comment1
       #echo "The requested user (${adName}) has been terminated on OS Level."
       userTerminatedOnServer[${userTerminatedCount}]="${servername}"
       userTerminatedCount=$(($userTerminatedCount + 1))
+      # validate a user is part of sudoer file.
+      is_sudoer_exist=$(ssh ${target} '[ -e /etc/sudoers ] && echo "exist" || echo "not exist"' | grep -v not | wc -l )
+      is_sudoer_dir_exist=$(ssh ${target} '[ -d /etc/sudoers.d ] && echo "exist" || echo "not exist"' | grep -v not | wc -l )
+      if [[ "${is_sudoer_exist}" -gt 0 && "${is_sudoer_dir_exist}" -gt 0 ]]
+      then
+        echo "sudoers and sudoers.d exist."
+        is_user_exist_on_sudoers_file=$(ssh ${target} 'cat /etc/sudoers' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/*' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_file}" -gt 0 || "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
+      elif [[ "${is_sudoer_exist}" -gt 0 ]]
+      then
+        echo "sudoers exist."
+        is_user_exist_on_sudoers_file=$(ssh ${target} 'cat /etc/sudoers' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_file}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
+      elif [[ "${is_sudoer_dir_exist}" -gt 0 ]]
+      then
+        echo "sudoers.d exist."
+        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/*' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        if [[ "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
+        then
+          matchedSudoerServer[${userPartOfSudoers}]="${servername}"
+          userPartOfSudoers=$(($userPartOfSudoers + 1))
+        fi
+      fi
    else
       #echo "unable to terminate a requested user on samba application."
       userTerminationFailedOnLocalServer[${userTerminationFailedOnLocal}]="${servername}"
@@ -567,7 +599,7 @@ then
     done
   fi
 
-  # Report sudoer match report
+  # Report the servers where the user was a part of sudoers file.
   if [[ "${userPartOfSudoers}" -gt 0 ]]
   then
     echo -e "\r                                                                 \r"
