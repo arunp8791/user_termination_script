@@ -270,7 +270,7 @@ Comment2
       then
         echo "sudoers and sudoers.d exist."
         is_user_exist_on_sudoers_file=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
-        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/*'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_file}" -gt 0 || "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -288,7 +288,7 @@ Comment2
       elif [[ "${is_sudoer_dir_exist}" -gt 0 ]]
       then
         echo "sudoers.d exist."
-        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/*'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -402,7 +402,7 @@ Comment1
       then
         echo "sudoers and sudoers.d exist."
         is_user_exist_on_sudoers_file=$(ssh ${target} 'cat /etc/sudoers' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
-        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/*' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/* 2> /temp' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_file}" -gt 0 || "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -420,7 +420,7 @@ Comment1
       elif [[ "${is_sudoer_dir_exist}" -gt 0 ]]
       then
         echo "sudoers.d exist."
-        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/*' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh ${target} 'cat /etc/sudoers.d/* 2> /temp' | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
