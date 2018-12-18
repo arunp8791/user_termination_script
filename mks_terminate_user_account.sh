@@ -170,16 +170,6 @@ then
 fi
 }
 
-
-check_requested_user_is_part_of_sudoer_from_dmz_jumpserver(){
-
-}
-
-check_requested_user_is_part_of_sudoer_from_jumpserver(){
-
-}
-
-
 terminate_user_account_from_dmzjumpserver()
 {
   #echo "Terminate Account from DMZ Jumpserver"
@@ -516,10 +506,8 @@ for line in "${lines[@]}"; do
           if [[ "${reachableFromDMZJumpserver}" = "true" ]]
           then
             terminate_user_account_from_dmzjumpserver
-            check_requested_user_is_part_of_sudoer_from_dmz_jumpserver
           else
             terminate_user_account_from_jumpserver
-            check_requested_user_is_part_of_sudoer_from_jumpserver
           fi
       fi
       #<<<<<<<<<<<<<<<<<<<<<<< Level 2 Action - Check user and terminate user on target servers (Block) >>>>>>>>>>>>>>>>>>>>>>#
