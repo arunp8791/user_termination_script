@@ -529,7 +529,7 @@ done
 
 #Report Generation - Block Start
 echo "Report Generation Started"
-if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 ]]
+if [[ "${userTerminationFailedOnSAMBA}" -gt 0 || "${userTerminationFailedOnLocal}" -gt 0 || "${notReachableNodeCount}" -gt 0 || "${MAFCount}" -gt 0 || "${userPartOfSudoers}" -gt 0 ]]
 then
   ReturnCode=2010
   # Report Unreachable Server
@@ -578,6 +578,22 @@ then
       echo -e "\r\t$(($i+1)). ${userTerminationFailedOnLocalServer[$i]}\r"
     done
   fi
+
+  # Report sudoer match report
+  if [[ "${userPartOfSudoers}" -gt 0 ]]
+  then
+    echo -e "\r                                                                 \r"
+    echo -e "\r<<<<<<<<< User is part of sudoers file >>>>>>>>>>>>>>>>>>>>>>\r"
+    echo -e "\r                                                                 \r"
+    echo -e "\rTotal Server where user account identified on sudoers list : ${userPartOfSudoers}\r"
+    echo -e "\r                                                                 \r"
+    echo -e "\rThe user account is a part of the sudoer list on below servers.     \r"
+    for (( i = 0 ; i < ${#matchedSudoerServer[@]} ; i++ ))
+    do
+      echo -e "\r\t$(($i+1)). ${matchedSudoerServer[$i]}\r"
+    done
+  fi
+
   # Report MAF Identified
   if [[ "${MAFCount}" -gt 0 ]]
   then
