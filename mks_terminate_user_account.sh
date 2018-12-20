@@ -177,11 +177,12 @@ terminate_user_account_from_dmzjumpserver()
   is_multiple_user_account_identified="false"
   user_account_id=""
   user_account_name_on_local=""
-  is_multiple_user_found_or_user_not_found=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${adName} | grep -iv root | awk -F: '{print $3}' | wc -l`
+  is_multiple_user_found_or_user_not_found=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}' | wc -l`
   if [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && "${emailAddress}" ]]
   then
+    temp_is_multiple_user_found_or_user_not_found="${is_multiple_user_found_or_user_not_found}"
     is_multiple_user_found_or_user_not_found=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
-    if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 ]]
+    if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 || "${temp_is_multiple_user_found_or_user_not_found}" -gt 1 ]]
     then
       is_multiple_user_account_identified="true"
     elif [[ "${is_multiple_user_found_or_user_not_found}" -eq 0 ]]
@@ -200,12 +201,12 @@ terminate_user_account_from_dmzjumpserver()
     fi
   else
     #user account identified with the help of user adName
-    user_account_id=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${adName} | grep -iv root | awk -F: '{print $3}'`
+    user_account_id=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}'`
   fi
   
   if [[ "${is_multiple_user_account_identified}" = "true" ]]
   then
-    MAFServers[${MAFCount}]="$server"
+    MAFServers[${MAFCount}]="${target}"
     MAFCount=$(( $MAFCount + 1 ))
   fi
 
@@ -310,11 +311,13 @@ terminate_user_account_from_jumpserver()
   is_multiple_user_account_identified="false"
   user_account_id=""
   user_account_name_on_local=""
-  is_multiple_user_found_or_user_not_found=`ssh ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}' | wc -l`
+  ssh ${target} cat /etc/passwd | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}' | wc -l
+  is_multiple_user_found_or_user_not_found=`ssh ${target} cat /etc/passwd | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}' | wc -l`
   if [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && "${emailAddress}" ]]
   then
+    temp_is_multiple_user_found_or_user_not_found="${is_multiple_user_found_or_user_not_found}"
     is_multiple_user_found_or_user_not_found=`ssh ${target} cat /etc/passwd | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
-    if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 ]]
+    if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 || "${temp_is_multiple_user_found_or_user_not_found}" -gt 1 ]]
     then
       is_multiple_user_account_identified="true"
     elif [[ "${is_multiple_user_found_or_user_not_found}" -eq 0 ]]
@@ -333,12 +336,15 @@ terminate_user_account_from_jumpserver()
     fi
   else
     #user account identified with the help of user adName
-    user_account_id=`ssh ${target} cat /etc/passwd | grep -i ${adName} | grep -iv root | awk -F: '{print $3}'`
+    user_account_id=`ssh ${target} cat /etc/passwd | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}'`
   fi
+  
+  [[ "${is_multiple_user_account_identified}" = "true" ]] && echo "MAF : true" || echo "MAF : false"
 
   if [[ "${is_multiple_user_account_identified}" = "true" ]]
   then
-    MAFServers[${MAFCount}]="$server"
+    echo "Multiple user account found."
+    MAFServers[${MAFCount}]="${target}"
     MAFCount=$(( $MAFCount + 1 ))
   fi
 
