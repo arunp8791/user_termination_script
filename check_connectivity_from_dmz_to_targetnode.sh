@@ -17,7 +17,7 @@ then
     #####################################################################################################
     #<<<<<<<< valiating the connectivity through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
     #####################################################################################################
-    ssh -n "root@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
+    ssh -n "isauto@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
     if [[ "${sshFlag}" -ne 0 ]]
     then
             echo "SSH Status : false"
@@ -26,7 +26,7 @@ then
     fi
 elif [[ "$2" = "remote_cmd_execution" ]]
 then
-    ssh -n root@${servername} "$3"
+    ssh -n isauto@${servername} "$3"
 else
     echo "command not found."
 fi
