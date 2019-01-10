@@ -8,9 +8,9 @@
 # Developed On                  : 12/05/2018 (MM/DD/YYYY)
 #
 # Last Modified By              : ARUNKUMAR PERUMAL
-# Last Modified On              : 12/20/2018 (MM/DD/YYYY)
+# Last Modified On              : 01/10/2019 (MM/DD/YYYY)
 #
-# Latest Version                : 0.019
+# Latest Version                : 0.020
 #########################################################################################################################
 
 #Global Variables
@@ -39,7 +39,7 @@ dmzPingFlag=-1
 dmzSSHFlag=-1
 isDMZJumpServerReachable="false"
 reachableFromDMZJumpserver="false"
-dmzJumpServer="mluser"
+dmzJumpServer="mksoem001"
 dmzWrapperScript="/root/MKS/UserDisableScript/mks_terminate_user_account_wrapper.sh"
 adName=""
 emailAddress=""
@@ -119,7 +119,7 @@ then
     #######################################################################################################################
     #<<<<<<<< valiating the connectivity to DMZ Jumpserver through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
     #######################################################################################################################
-    ssh "root@${dmzJumpServer}" "exit" > /dev/null 2>&1 && dmzSSHFlag=0 || dmzSSHFla
+    ssh "isauto@${dmzJumpServer}" "exit" > /dev/null 2>&1 && dmzSSHFlag=0 || dmzSSHFla
     if [[ "${dmzSSHFlag}" -eq 0 ]]
     then
       isDMZJumpServerReachable="true"
@@ -132,11 +132,11 @@ then
     ########################################################################################################################
     #<<<<<<<< valiating the connectivity through ping command (From MKS L & M Jumpserver > dmzJumpServer) >>>>>>>>>>>>>>>>>#
     ########################################################################################################################
-    pingReport=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$servername" "ping"`
+    pingReport=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$servername" "ping"`
     [[ $(echo "${pingReport}" | cut -d':' -f2 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//') = "true" ]] && pingFlag=0 || pingFlag=-1
     if [[ "${pingFlag}" -ne 0 ]]
     then
-      pingReport=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$ip" "ping"`
+      pingReport=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$ip" "ping"`
       [[ $(echo "${pingReport}" | cut -d':' -f2 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//') = "true" ]] && pingFlag=0 || pingFlag=-1
       if [[ "${pingFlag}" -eq 0 ]]
       then
@@ -151,11 +151,11 @@ then
     #####################################################################################################
     #<<<<<<<< valiating the connectivity through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
     #####################################################################################################
-    sshReport=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$servername" "ssh"`
+    sshReport=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$servername" "ssh"`
     [[ $(echo "${sshReport}" | cut -d':' -f2 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//') = "true" ]] && sshFlag=0 || sshFlag=-1
     if [[ "${sshFlag}" -ne 0 ]]
     then
-      sshReport=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$ip" "ssh"`
+      sshReport=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$ip" "ssh"`
       [[ $(echo "${sshReport}" | cut -d':' -f2 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//') = "true" ]] && sshFlag=0 || sshFlag=-1
       if [[ "${sshFlag}" -eq 0 ]]
       then
@@ -177,11 +177,11 @@ terminate_user_account_from_dmzjumpserver()
   is_multiple_user_account_identified="false"
   user_account_id=""
   user_account_name_on_local=""
-  is_multiple_user_found_or_user_not_found=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}' | wc -l`
+  is_multiple_user_found_or_user_not_found=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}' | wc -l`
   if [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && "${emailAddress}" ]]
   then
     temp_is_multiple_user_found_or_user_not_found="${is_multiple_user_found_or_user_not_found}"
-    is_multiple_user_found_or_user_not_found=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
+    is_multiple_user_found_or_user_not_found=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}' | wc -l`
     if [[ "${is_multiple_user_found_or_user_not_found}" -gt 1 || "${temp_is_multiple_user_found_or_user_not_found}" -gt 1 ]]
     then
       is_multiple_user_account_identified="true"
@@ -189,7 +189,7 @@ terminate_user_account_from_dmzjumpserver()
     then
       is_user_account_not_identified="true"
     else
-      user_account_id=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}'`
+      user_account_id=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | grep -i ${emailAddress} | grep -iv root | awk -F: '{print $3}'`
     fi
   elif [[ "${is_multiple_user_found_or_user_not_found}" -ne 1 && ( ! "${emailAddress}" ) ]]
   then
@@ -201,7 +201,7 @@ terminate_user_account_from_dmzjumpserver()
     fi
   else
     #user account identified with the help of user adName
-    user_account_id=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}'`
+    user_account_id=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | egrep -i "${adName}" | grep -iv root | awk -F: '{print $3}'`
   fi
   
   if [[ "${is_multiple_user_account_identified}" = "true" ]]
@@ -218,11 +218,11 @@ terminate_user_account_from_dmzjumpserver()
   if [[ (! ( "${is_multiple_user_account_identified}" = "true" || "${is_user_account_not_identified}" = "true" ) ) && "${lc_samba}" = "yes" ]]
   then
     echo "checking whether the user is a part of samba application or not..."
-    is_samba_user_identified=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
+    is_samba_user_identified=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
     if [[ "${is_samba_user_identified}" -eq 1 ]]
     then
       is_samba_user="true"
-      user_name_on_samba=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
+      user_name_on_samba=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
     fi
   fi
  : << 'Comment2' 
@@ -241,8 +241,8 @@ Comment2
     if [[ "${is_samba_user}" = "true" ]]
     then
       #echo "remove user on samba application."
-      ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'smbpasswd -x $user_name_on_samba > /dev/null 2>&1'"
-      is_samba_user_terminated=`ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
+      ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'smbpasswd -x $user_name_on_samba > /dev/null 2>&1'"
+      is_samba_user_terminated=`ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'pdbedit -L'" | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
       if [[ "${is_samba_user_terminated}" -eq 0 ]]
       then
         #echo "The requested user (${adName}) has been terminated on samba application."
@@ -254,9 +254,9 @@ Comment2
         userTerminationFailedOnSAMBA=$(($userTerminatedCountOnSAMBA + 1))
       fi
     fi
-    user_account_name_on_local=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
-    ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'userdel -r "$user_account_name_on_local" > /dev/null 2>&1'"
-    is_user_terminated_on_os_level=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | wc -l)
+    user_account_name_on_local=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
+    ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'userdel -r "$user_account_name_on_local" > /dev/null 2>&1'"
+    is_user_terminated_on_os_level=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/passwd'" | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | wc -l)
     if [[ "${is_user_terminated_on_os_level}" -eq 0 ]]
     then
       #echo "The requested user (${adName}) has been terminated on OS Level."
@@ -265,13 +265,13 @@ Comment2
 
       #Verify user is a part of /etc/sudoers (or, /etc/sudoers.d/*) file
       #[ -e /etc/sudoers ] && echo "Found" || echo "Not found"
-      is_sudoer_exist=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'[ -e /etc/sudoers ] && echo "exist" || echo "not exist"'" | grep -v not | wc -l)
-      is_sudoer_dir_exist=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'[ -d /etc/sudoers.d ] && echo "exist" || echo "not exist"'" | grep -v not | wc -l)
+      is_sudoer_exist=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'[ -e /etc/sudoers ] && echo "exist" || echo "not exist"'" | grep -v not | wc -l)
+      is_sudoer_dir_exist=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'[ -d /etc/sudoers.d ] && echo "exist" || echo "not exist"'" | grep -v not | wc -l)
       if [[ "${is_sudoer_exist}" -gt 0 && "${is_sudoer_dir_exist}" -gt 0 ]]
       then
         echo "sudoers and sudoers.d exist."
-        is_user_exist_on_sudoers_file=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
-        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_file=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_file}" -gt 0 || "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -280,7 +280,7 @@ Comment2
       elif [[ "${is_sudoer_exist}" -gt 0 ]]
       then
         echo "sudoers exist."
-        is_user_exist_on_sudoers_file=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_file=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers'" | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_file}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -289,7 +289,7 @@ Comment2
       elif [[ "${is_sudoer_dir_exist}" -gt 0 ]]
       then
         echo "sudoers.d exist."
-        is_user_exist_on_sudoers_dir=$(ssh "root@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
+        is_user_exist_on_sudoers_dir=$(ssh "isauto@${dmzJumpServer}" 'bash -s' < "${current_directory}/check_connectivity_from_dmz_to_targetnode.sh" "$target" "remote_cmd_execution" "'cat /etc/sudoers.d/* 2> /temp'" | grep -v 'No such file or directory' | grep -v '^#' | grep -i "$user_account_name_on_local" | wc -l)
         if [[ "${is_user_exist_on_sudoers_dir}" -gt 0 ]]
         then
           matchedSudoerServer[${userPartOfSudoers}]="${servername}"
@@ -380,7 +380,7 @@ Comment1
     if [[ "${is_samba_user}" = "true" ]]
     then
       #echo "remove user on samba application."
-      ssh root@$target smbpasswd -x $user_name_on_samba > /dev/null 2>&1
+      ssh isauto@$target smbpasswd -x $user_name_on_samba > /dev/null 2>&1
       is_samba_user_terminated=`ssh ${target} pdbedit -L | awk -F: -v user_id="$user_account_id" '$2==user_id { print $0 }' | wc -l`
       if [[ "${is_samba_user_terminated}" -eq 0 ]]
       then
@@ -394,7 +394,7 @@ Comment1
       fi
     fi
     user_account_name_on_local=$(ssh ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | cut -d: -f1 | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//')
-    ssh root@$target userdel -r "$user_account_name_on_local" > /dev/null 2>&1
+    ssh isauto@$target userdel -r "$user_account_name_on_local" > /dev/null 2>&1
     is_user_terminated_on_os_level=$(ssh ${target} cat /etc/passwd | awk -F: -v user_id="$user_account_id" '$3==user_id { print $0 }' | wc -l)
     if [[ "${is_user_terminated_on_os_level}" -eq 0 ]]
     then
@@ -509,10 +509,10 @@ for line in "${lines[@]}"; do
         #####################################################################################################
         #<<<<<<<< valiating the connectivity through ssh command (From MKS L & M Jumpserver) >>>>>>>>>>>>>>>#
         #####################################################################################################
-        ssh "root@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
+        ssh "isauto@${servername}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
         if [[ "${sshFlag}" -ne 0 ]]
         then
-          ssh "root@${ip}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
+          ssh "isauto@${ip}" "exit" > /dev/null 2>&1 && sshFlag=0 || sshFlag=-1
           if [[ "${sshFlag}" -eq 0 ]]
           then
             target=${ip}
